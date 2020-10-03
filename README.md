@@ -3,3 +3,5 @@ Basic example of using:
  - Hilt
  - Hilt Jetpack extensions for ViewModel
  - ViewModelScope for coroutines
+ 
+ flow branch uses StateFlow for an observable repository.

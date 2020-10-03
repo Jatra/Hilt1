@@ -10,7 +10,6 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.main_fragment.view.*
 import uk.co.jatra.hilt1.R
 
 //this annotation required to allow the byViewModels to create a viewmodel that users Hilt.

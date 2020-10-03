@@ -1,35 +1,35 @@
 package uk.co.jatra.hilt1.repositories
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
-//This class is a dependency for others, so needs to be injected.
-//Here the Inject on the constructor is not injecting anything into this class,
-//but is marking the class as being injectable.
-//If the constructor took parameters, then they would be injected themselves.
+//This version uses StateFlow - which is still experimental.
+//An alternative would be to use channels.
+@ExperimentalCoroutinesApi
 class Repository @Inject constructor() {
-    //for illustrative purposes
-    private var value = ""
+    private val _flow = MutableStateFlow("")
+    val flow: StateFlow<String>  = _flow
 
-    suspend fun getValue(): String {
-        //make an api call, update the db, whatever
-        delay(3000)
-        return "hello $value"
+    init {
+        //make an initial call to the API/db etc.
+        _flow.value = ""
     }
 
-    suspend fun setValue(value: String) {
+    suspend fun update(value: String) {
+        _flow.value = "Loading"
         //make an api call, update the db, whatever
         delay(1000)
-        this.value = value
+        _flow.value = "hello $value"
     }
 
-    suspend fun update(value: String): String {
-        //make an api call, update the db, whatever
+    //get the latest value.
+    suspend fun getValue(): String {
         delay(3000)
-        this.value = value
-        return "hello $value"
+        return _flow.value
     }
 }
 
-//Another way would be to make the respository observable.
-//Choices for that: Rx, LiveData, or since we're in coroutines: a flow.
+//Rather than using a string, the data should be a Result type sealed class, allowing for
+// Loading. Data, Error, etc.
