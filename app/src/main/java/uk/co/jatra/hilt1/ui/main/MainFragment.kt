@@ -8,12 +8,13 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.main_fragment.view.*
+import kotlinx.android.synthetic.main.main_fragment.*
 import uk.co.jatra.hilt1.R
 
-//this annotation required to allow the byViewModels to create a viewmodel that users Hilt.
+//this annotation required to allow the by ViewModels to create a viewmodel that users Hilt.
 @AndroidEntryPoint
 class MainFragment : Fragment() {
 
@@ -21,10 +22,11 @@ class MainFragment : Fragment() {
         fun newInstance() = MainFragment()
     }
 
-    private val viewModel by viewModels<MainViewModel>()
+    private val viewModel: MainViewModel by viewModels()
     private lateinit var messageView: TextView
     private lateinit var input: EditText
     private lateinit var button: Button
+    private lateinit var button2: Button
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
@@ -33,14 +35,41 @@ class MainFragment : Fragment() {
         messageView = view.findViewById(R.id.message)
         input = view.findViewById(R.id.input)
         button = view.findViewById(R.id.button)
+        button2 = view.findViewById(R.id.button2)
 
         button.setOnClickListener {
             viewModel.update(input.text.toString())
         }
 
+        button2.setOnClickListener {
+            viewModel.update2(input.text.toString())
+        }
+
         viewModel.state.observe(viewLifecycleOwner) {
-            messageView.text = it
+            handleViewState(it)
+        }
+        viewModel.viewState.observe(viewLifecycleOwner) {
+            handleViewState(it)
         }
         return view
+    }
+
+    private fun handleViewState(viewState: ViewState?) {
+        when (viewState) {
+            Loading -> {
+                progressBar.isVisible = true
+            }
+            is Content<*> -> {
+                when (viewState.data) {
+                    is String -> messageView.text = viewState.data
+                    else -> messageView.text = "unexpected data"
+                }
+                progressBar.isVisible = false
+            }
+            Error -> {
+                progressBar.isVisible = false
+                //show error message, retry or whatever.
+            }
+        }
     }
 }
